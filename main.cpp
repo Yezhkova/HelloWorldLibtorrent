@@ -28,7 +28,7 @@ struct test_plugin : plugin
                         , udp::endpoint const& /* source */, bdecode_node const& message
                         , entry& response) override
     {
-//        std::cout <<" \n------------------------------------------LOG\n";
+        std::cout <<" \n------------------------------------------LOG\n";
 
         std::cout << message.dict_find_string_value("q") << '\n';
         if (message.dict_find_string_value("q") == "test_good")
