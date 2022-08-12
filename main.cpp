@@ -44,31 +44,23 @@ dht_direct_response_alert* get_direct_response(lt::session& ses)
 
 #endif // #if !defined TORRENT_DISABLE_EXTENSIONS && !defined TORRENT_DISABLE_DHT
 
+//class TestDelegate : public SessionWrapperDelegate
+
+//{
+//    void onMessage(); //print message
+//};
+
 int main()
 {
+//    TestDelegate testDel;
     SessionWrapper responder(IP ":11101");
     SessionWrapper requester(IP_REQUESTER ":11102");
-
-    // TODO : make wrapper, add functions add_extension, dht_direct_request
-    // TODO : settingsPack -> to constructor
     responder.addExtension(std::make_shared<test_plugin>());
 
     // successful request
     Sleep(1000);
     entry r;
     r["q"] = "test_good";
-    requester.dhtDirectRequest(IP, responder, r, client_data_t(reinterpret_cast<int*>(12345)));
+    requester.dhtDirectRequest(IP, responder, r, client_data_t(reinterpret_cast<int*>(12345))); // ip + responder -> endpoint
     Sleep(120000);
-
-//    for(;;)
-//    {
-//        std::vector<lt::alert*> alerts;
-//        responder.pop_alerts(&alerts);
-//        for (lt::alert const* a : alerts) {
-//            std::cout << a->message() << std::endl;
-//        }
-//    }
-
-    //        abort.emplace_back(responder.abort());
-    //        abort.emplace_back(requester.abort());
 }

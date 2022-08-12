@@ -45,7 +45,7 @@ public:
 
     void dhtDirectRequest(
             std::string IP,
-            SessionWrapper & otherSession,
+            SessionWrapper const& otherSession,
             libtorrent::entry const& e,
             libtorrent::client_data_t userdata = {} )
     {
