@@ -16,6 +16,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 add_executable(HelloWorldLibtorrent
   main.cpp
+  SessionWrapper.hpp
+  TestPlugin.hpp
 )
 include_directories(C:/Users/Admin/source/repos/QtProjects/libtorrent/include)
 include_directories(C:/boost/boost_1_79_0)
