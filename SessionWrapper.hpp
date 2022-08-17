@@ -12,7 +12,7 @@
 libtorrent::udp::endpoint uep(char const* ip, int port);
 
 
-class SessionWrapper
+class SessionWrapper : public std::enable_shared_from_this<SessionWrapper>
 {
 private:
     libtorrent::session       m_session;
@@ -35,7 +35,6 @@ private:
 public:
     SessionWrapper(std::string addressAndPort) : m_session( generateSessionSettings( addressAndPort ) )
     {
-
     }
 
     void addExtension(std::shared_ptr<test_plugin> testPluginPtr)
@@ -45,11 +44,11 @@ public:
 
     void dhtDirectRequest(
             std::string IP,
-            SessionWrapper const& otherSession,
+            std::shared_ptr<SessionWrapper> otherSession,
             libtorrent::entry const& e,
             libtorrent::client_data_t userdata = {} )
     {
-        libtorrent::udp::endpoint endpoint = uep( IP.c_str(), otherSession.m_session.listen_port() );
+        libtorrent::udp::endpoint endpoint = uep( IP.c_str(), otherSession->m_session.listen_port() );
         m_session.dht_direct_request( endpoint, e, userdata );
     }
 };
@@ -61,3 +60,5 @@ libtorrent::udp::endpoint uep(char const* ip, int port)
     assert(!ec);
     return ret;
 }
+
+

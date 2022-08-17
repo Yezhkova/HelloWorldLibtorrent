@@ -18,6 +18,8 @@ add_executable(HelloWorldLibtorrent
   main.cpp
   SessionWrapper.hpp
   TestPlugin.hpp
+  SessionWrapperDelegate.hpp
+  log.hpp
 )
 include_directories(C:/Users/Admin/source/repos/QtProjects/libtorrent/include)
 include_directories(C:/boost/boost_1_79_0)

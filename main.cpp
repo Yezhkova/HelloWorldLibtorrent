@@ -8,8 +8,9 @@
 #include "libtorrent/alert_types.hpp"
 #include "libtorrent/bdecode.hpp"
 #include <iostream>
-
+#include "log.hpp"
 #include "SessionWrapper.hpp"
+#include "SessionWrapperDelegate.hpp"
 
 #define TEST_CHECK(expr) {assert (expr);}
 #define TEST_EQUAL(expr1, expr2) {assert(expr1 == expr2); }
@@ -44,23 +45,34 @@ dht_direct_response_alert* get_direct_response(lt::session& ses)
 
 #endif // #if !defined TORRENT_DISABLE_EXTENSIONS && !defined TORRENT_DISABLE_DHT
 
-//class TestDelegate : public SessionWrapperDelegate
+class TestDelegate : public SessionWrapperDelegate
 
-//{
-//    void onMessage(); //print message
-//};
+{
+    void onMessage( const std::string& messageText, boost::asio::ip::udp::endpoint senderEndpoint ) override
+    {
+        LOG(senderEndpoint << '\t' << messageText);
+    }
+};
 
 int main()
 {
-//    TestDelegate testDel;
-    SessionWrapper responder(IP ":11101");
-    SessionWrapper requester(IP_REQUESTER ":11102");
-    responder.addExtension(std::make_shared<test_plugin>());
+    TestDelegate responderTestDel;
+    auto responderPtr = createLtSession(IP ":11101", responderTestDel);
+
+    TestDelegate requesterTestDel;
+    auto requesterPtr = createLtSession(IP_REQUESTER ":11102", requesterTestDel);
+
+//    SessionWrapper responder(IP ":11101");
+//    SessionWrapper requester(IP_REQUESTER ":11102");
+
+    responderPtr->addExtension(std::make_shared<test_plugin>());
+
+//    responder.addExtension(std::make_shared<test_plugin>());
 
     // successful request
     Sleep(1000);
     entry r;
     r["q"] = "test_good";
-    requester.dhtDirectRequest(IP, responder, r, client_data_t(reinterpret_cast<int*>(12345))); // ip + responder -> endpoint
+    requesterPtr->dhtDirectRequest(IP, responderPtr, r, client_data_t(reinterpret_cast<int*>(12345))); // ip + responder -> endpoint
     Sleep(120000);
 }
