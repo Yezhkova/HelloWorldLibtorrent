@@ -45,11 +45,6 @@ public:
         m_session.add_extension(std::make_shared<DhtRequestHandler>());
     }
 
-//    void addExtension(std::shared_ptr<test_plugin> testPluginPtr)
-//    {
-//        m_session.add_extension(testPluginPtr);
-//    }
-
     void alertHandler()
     {
 
@@ -64,16 +59,6 @@ public:
         m_session.dht_direct_request( endpoint, e, libtorrent::client_data_t(reinterpret_cast<int*>(12345)) );
 
     }
-
-//    void dhtDirectRequest(
-//            boost::asio::ip::udp::endpoint endpoint,
-//            libtorrent::entry const& e,
-//            libtorrent::client_data_t userdata = {} )
-//    {
-//        m_session.dht_direct_request( endpoint, e, userdata );
-//    }
-//
-
 };
 
 std::shared_ptr<SessionWrapperAbstract> createLtSessionPtr( const std::string& addressAndPort, std::shared_ptr<SessionWrapperDelegate> delegate )
