@@ -25,21 +25,22 @@ public:
     }
 
     bool on_dht_request(
-        lt::string_view                         query,
-        boost::asio::ip::udp::endpoint const&   senderEndpoint,
-        lt::bdecode_node const&                 dict,
-        lt::entry&                              response ) override
-{
+            lt::string_view                         query,
+            boost::asio::ip::udp::endpoint const&   senderEndpoint,
+            lt::bdecode_node const&                 dict,
+            lt::entry&                              response )
+        override
+    {
         std::cout <<" \n------------------------------------------LOG\n";
 
-        std::cout << dict.dict_find_string_value("q") << '\n';
+        std::cout << dict.dict_find_string_value("q") << '\n';  // cout << "test_good";
         if (dict.dict_find_string_value("q") == "test_good")
         {
             std::cout<<"\n------------------------------------------LOG\n" << std::flush;
             auto txt = dict.dict_find_string_value("txt");
 
-            m_delegate->onMessage(std::string(txt), senderEndpoint);
-            exit(0);
+            m_delegate->onMessage(std::string(txt), senderEndpoint); // cout << <message>
+            //exit(0);
             response["r"]["good"] = 1;
             return true;
         }

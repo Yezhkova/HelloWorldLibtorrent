@@ -41,8 +41,8 @@ public:
 
     virtual void start() override
     {
-//        m_session.set_alert_notify( [this] { this->alertHandler(); } );
-        m_session.add_extension(std::make_shared<DhtRequestHandler>());
+        m_session.set_alert_notify( [this] { this->alertHandler(); } );
+        m_session.add_extension(std::make_shared<DhtRequestHandler>(m_delegate));
     }
 
     void alertHandler()
@@ -61,7 +61,7 @@ public:
     }
 };
 
-std::shared_ptr<SessionWrapperAbstract> createLtSessionPtr( const std::string& addressAndPort, std::shared_ptr<SessionWrapperDelegate> delegate )
+std::shared_ptr<SessionWrapper> createLtSessionPtr( const std::string& addressAndPort, std::shared_ptr<SessionWrapperDelegate> delegate )
 {
     return std::make_shared<SessionWrapper>( addressAndPort, delegate );
 };

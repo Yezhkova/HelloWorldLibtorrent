@@ -53,7 +53,7 @@ boost::asio::ip::udp::endpoint uep(char const* ip, int port)
 
 #endif // #if !defined TORRENT_DISABLE_EXTENSIONS && !defined TORRENT_DISABLE_DHT
 
-class TestDelegate : public SessionWrapperDelegate
+class UIDelegate : public SessionWrapperDelegate
 
 {
     void onMessage( const std::string& messageText, boost::asio::ip::udp::endpoint senderEndpoint ) override
@@ -64,24 +64,15 @@ class TestDelegate : public SessionWrapperDelegate
 
 int main()
 {
-    TestDelegate responderTestDel;
-    auto responderPtr = createLtSessionPtr(IP ":11101", std::make_shared<TestDelegate> (responderTestDel));
+    UIDelegate responderTestDel;
+    auto responderPtr = createLtSessionPtr(IP ":11101", std::make_shared<UIDelegate> (responderTestDel));
 
-    TestDelegate requesterTestDel;
-    auto requesterPtr = createLtSessionPtr(IP_REQUESTER ":11102", std::make_shared<TestDelegate> (requesterTestDel));
-
-//    SessionWrapper responder(IP ":11101");
-//    SessionWrapper requester(IP_REQUESTER ":11102");
+    UIDelegate requesterTestDel;
+    auto requesterPtr = createLtSessionPtr(IP_REQUESTER ":11102", std::make_shared<UIDelegate> (requesterTestDel));
 
     responderPtr->start();
-//    responderPtr->addExtension(std::make_shared<test_plugin>());
-
-//    responder.addExtension(std::make_shared<test_plugin>());
-
     // successful request
     Sleep(1000);
-    requesterPtr->sendMessage(uep( IP, 11101 ), "dfiulghw");
-
-//    requesterPtr->dhtDirectRequest(uep( IP, 11101 ), r, client_data_t(reinterpret_cast<int*>(12345))); // ip + responder -> endpoint
+    requesterPtr->sendMessage(uep( IP, 11101 ), "my message");
     Sleep(120000);
 }
