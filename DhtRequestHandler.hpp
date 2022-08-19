@@ -7,9 +7,18 @@
 #include "libtorrent/alert_types.hpp"
 #include "libtorrent/bdecode.hpp"
 #include <iostream>
+#include "SessionWrapperDelegate.hpp"
 
-struct test_plugin : libtorrent::plugin
+struct DhtRequestHandler : libtorrent::plugin
 {
+private:
+    std::shared_ptr<SessionWrapperDelegate> m_delegate = nullptr;
+public:
+    DhtRequestHandler() = default;
+    DhtRequestHandler(std::shared_ptr<SessionWrapperDelegate> delegate) : m_delegate(delegate)
+    {
+
+    }
     feature_flags_t implemented_features() override
     {
         return plugin::dht_request_feature;
@@ -27,6 +36,9 @@ struct test_plugin : libtorrent::plugin
         if (dict.dict_find_string_value("q") == "test_good")
         {
             std::cout<<"\n------------------------------------------LOG\n" << std::flush;
+            auto txt = dict.dict_find_string_value("txt");
+
+            m_delegate->onMessage(std::string(txt), senderEndpoint);
             exit(0);
             response["r"]["good"] = 1;
             return true;

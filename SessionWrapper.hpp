@@ -7,15 +7,15 @@
 #include "libtorrent/alert_types.hpp"
 #include "libtorrent/bdecode.hpp"
 #include <iostream>
-#include "TestPlugin.hpp"
+#include "DhtRequestHandler.hpp"
+#include "SessionWrapperDelegate.hpp"
+#include "log.hpp"
 
-libtorrent::udp::endpoint uep(char const* ip, int port);
-
-
-class SessionWrapper : public std::enable_shared_from_this<SessionWrapper>
+class SessionWrapper : public SessionWrapperAbstract
 {
 private:
-    libtorrent::session       m_session;
+    libtorrent::session                       m_session;
+    std::shared_ptr<SessionWrapperDelegate>   m_delegate;
 
     lt::settings_pack generateSessionSettings(std::string addressAndPort)
     {
@@ -31,34 +31,53 @@ private:
         return sp;
     }
 
-
 public:
-    SessionWrapper(std::string addressAndPort) : m_session( generateSessionSettings( addressAndPort ) )
+    SessionWrapper(std::string addressAndPort, std::shared_ptr<SessionWrapperDelegate> delegate) :
+        m_session( generateSessionSettings( addressAndPort ) ),
+        m_delegate( delegate )
     {
+
     }
 
-    void addExtension(std::shared_ptr<test_plugin> testPluginPtr)
+    virtual void start() override
     {
-        m_session.add_extension(testPluginPtr);
+//        m_session.set_alert_notify( [this] { this->alertHandler(); } );
+        m_session.add_extension(std::make_shared<DhtRequestHandler>());
     }
 
-    void dhtDirectRequest(
-            std::string IP,
-            std::shared_ptr<SessionWrapper> otherSession,
-            libtorrent::entry const& e,
-            libtorrent::client_data_t userdata = {} )
+//    void addExtension(std::shared_ptr<test_plugin> testPluginPtr)
+//    {
+//        m_session.add_extension(testPluginPtr);
+//    }
+
+    void alertHandler()
     {
-        libtorrent::udp::endpoint endpoint = uep( IP.c_str(), otherSession->m_session.listen_port() );
-        m_session.dht_direct_request( endpoint, e, userdata );
+
     }
+
+    virtual void sendMessage( boost::asio::ip::udp::endpoint endpoint, const std::string& text ) override
+    {
+        libtorrent::entry e;
+        e["q"] = "test_good";
+        e["txt"] = text;
+
+        m_session.dht_direct_request( endpoint, e, libtorrent::client_data_t(reinterpret_cast<int*>(12345)) );
+
+    }
+
+//    void dhtDirectRequest(
+//            boost::asio::ip::udp::endpoint endpoint,
+//            libtorrent::entry const& e,
+//            libtorrent::client_data_t userdata = {} )
+//    {
+//        m_session.dht_direct_request( endpoint, e, userdata );
+//    }
+//
+
 };
 
-libtorrent::udp::endpoint uep(char const* ip, int port)
+std::shared_ptr<SessionWrapperAbstract> createLtSessionPtr( const std::string& addressAndPort, std::shared_ptr<SessionWrapperDelegate> delegate )
 {
-    libtorrent::error_code ec;
-    libtorrent::udp::endpoint ret(libtorrent::make_address(ip, ec), std::uint16_t(port));
-    assert(!ec);
-    return ret;
-}
-
+    return std::make_shared<SessionWrapper>( addressAndPort, delegate );
+};
 

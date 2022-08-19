@@ -9,8 +9,9 @@
 #include "libtorrent/bdecode.hpp"
 #include <iostream>
 #include "log.hpp"
-#include "SessionWrapper.hpp"
+#include "DhtRequestHandler.hpp"
 #include "SessionWrapperDelegate.hpp"
+#include "SessionWrapper.hpp"
 
 #define TEST_CHECK(expr) {assert (expr);}
 #define TEST_EQUAL(expr1, expr2) {assert(expr1 == expr2); }
@@ -40,7 +41,14 @@ dht_direct_response_alert* get_direct_response(lt::session& ses)
         }
     }
 }
+}
 
+boost::asio::ip::udp::endpoint uep(char const* ip, int port)
+{
+    libtorrent::error_code ec;
+    boost::asio::ip::udp::endpoint ret( boost::asio::ip::make_address(ip, ec), std::uint16_t(port) );
+    assert(!ec);
+    return ret;
 }
 
 #endif // #if !defined TORRENT_DISABLE_EXTENSIONS && !defined TORRENT_DISABLE_DHT
@@ -57,22 +65,23 @@ class TestDelegate : public SessionWrapperDelegate
 int main()
 {
     TestDelegate responderTestDel;
-    auto responderPtr = createLtSession(IP ":11101", responderTestDel);
+    auto responderPtr = createLtSessionPtr(IP ":11101", std::make_shared<TestDelegate> (responderTestDel));
 
     TestDelegate requesterTestDel;
-    auto requesterPtr = createLtSession(IP_REQUESTER ":11102", requesterTestDel);
+    auto requesterPtr = createLtSessionPtr(IP_REQUESTER ":11102", std::make_shared<TestDelegate> (requesterTestDel));
 
 //    SessionWrapper responder(IP ":11101");
 //    SessionWrapper requester(IP_REQUESTER ":11102");
 
-    responderPtr->addExtension(std::make_shared<test_plugin>());
+    responderPtr->start();
+//    responderPtr->addExtension(std::make_shared<test_plugin>());
 
 //    responder.addExtension(std::make_shared<test_plugin>());
 
     // successful request
     Sleep(1000);
-    entry r;
-    r["q"] = "test_good";
-    requesterPtr->dhtDirectRequest(IP, responderPtr, r, client_data_t(reinterpret_cast<int*>(12345))); // ip + responder -> endpoint
+    requesterPtr->sendMessage(uep( IP, 11101 ), "dfiulghw");
+
+//    requesterPtr->dhtDirectRequest(uep( IP, 11101 ), r, client_data_t(reinterpret_cast<int*>(12345))); // ip + responder -> endpoint
     Sleep(120000);
 }

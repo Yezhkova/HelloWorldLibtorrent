@@ -17,12 +17,13 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 add_executable(HelloWorldLibtorrent
   main.cpp
   SessionWrapper.hpp
-  TestPlugin.hpp
+  DhtRequestHandler.hpp
   SessionWrapperDelegate.hpp
   log.hpp
 )
 include_directories(C:/Users/Admin/source/repos/QtProjects/libtorrent/include)
-include_directories(C:/boost/boost_1_79_0)
+find_package(Boost 1.79.0 REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
 
 target_link_libraries(HelloWorldLibtorrent Qt${QT_VERSION_MAJOR}::Core)
 target_link_libraries(HelloWorldLibtorrent C:/Users/Admin/source/repos/QtProjects/build-libtorrent_MSVC/torrent-rasterbar.lib )
